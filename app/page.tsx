@@ -1,13 +1,14 @@
 "use client";
 
+import clsx from "clsx";
+import { useCallback, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+
 import HeroImage from "@/public/hannah-lim-U6nlG0Y5sfs-unsplash.jpg";
 
-import { Input } from "./ui/input";
 import { LOGIN_URL } from "./lib/api";
-import { useCallback, useState } from "react";
-import { useRouter } from "next/navigation";
-import clsx from "clsx";
+import { Input } from "./ui/input";
 
 export default function Home() {
   const [error, setError] = useState("");
@@ -39,7 +40,7 @@ export default function Home() {
   );
 
   return (
-    <div className="flex flex-col min-h-screen bg-base-100 ">
+    <>
       <div className="hero flex-1 max-w-screen-md self-center">
         <div className="hero-content text-center grid grid-cols-2 rounded-lg p-0 m-10 border-slate-600 border border-solid bg-base-200">
           <div className="relative rounded-l-lg p-0">
@@ -111,6 +112,6 @@ export default function Home() {
         </div>
       </div>
       <div className="flex-grow footer footer-center bg-base-200 text-base-content"></div>
-    </div>
+    </>
   );
 }
