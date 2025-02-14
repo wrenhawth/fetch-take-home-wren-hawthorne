@@ -7,14 +7,14 @@ type InputProps = {
 
 export const Input = ({ id, label, placeholder, type = "text"}: InputProps) => {
     return (
-    <label htmlFor={id} className="form-control">
+    <label htmlFor={id} className="form-control text-base-content">
       <div className="label">
-        <span className="label-text">{label}</span>
+        <span className="label-text text-base-content">{label}</span>
       </div>
       <input
         id={id}
         name={id}
-        className="input input-bordered"
+        className="input input-bordered text-base-content"
         placeholder={placeholder}
         type={type}
       />

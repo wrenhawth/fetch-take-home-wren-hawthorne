@@ -7,55 +7,82 @@ import { Input } from "./ui/input";
 import { LOGIN_URL } from "./lib/api";
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
+import clsx from "clsx";
 
 export default function Home() {
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
+  const [pending, setPending] = useState(false);
   const router = useRouter();
 
-  const login = useCallback(async (formData: FormData) => {
-    setError('')
-    const name = formData.get("name");
-    const email = formData.get("email");
-    const body = JSON.stringify({ name, email });
-    try {
+  const login = useCallback(
+    async (formData: FormData) => {
+      setPending(true);
+      const name = formData.get("name");
+      const email = formData.get("email");
+      const body = JSON.stringify({ name, email });
       const res = await fetch(LOGIN_URL, {
-        body,
-        headers: {
-          "Content-Type": "application/JSON",
-        },
         method: "POST",
+        body,
+        credentials: "include",
+        headers: {
+          "content-type": "application/json",
+        },
       });
       if (res.ok) {
-        router.push('/results')
+        router.push("/results");
       } else {
-        setError('Error logging in. Please try again.')
+        setError("Please enter a name and email.");
+        setPending(false);
       }
-    } catch (error) {
-      console.error(error);
-    }
-  }, [router, setError]);
+    },
+    [router]
+  );
+
   return (
-    <div className="flex flex-col min-h-screen">
-      <div
-        className="hero flex-1"
-        // style={{ backgroundImage: "url(./hannah-lim-U6nlG0Y5sfs-unsplash.jpg" }}
-      >
+    <div className="flex flex-col min-h-screen bg-base-100 ">
+      <div className="hero flex-1 max-w-screen-md self-center">
         <div className="hero-content text-center grid grid-cols-2 rounded-lg p-0 m-10 border-slate-600 border border-solid bg-base-200">
-          <Image
-            className="rounded-l-lg p-0"
-            alt="A collection of cute dogs"
-            src={HeroImage}
-          />
-          <div className="p-3">
+          <div className="relative rounded-l-lg p-0">
+            <Image
+              className="rounded-l-lg p-0"
+              alt="A collection of cute dogs"
+              src={HeroImage}
+            />
+            <aside className="absolute bottom-0 text-white bg-opacity-60 bg-slate-600 w-full">
+              <p>
+                Photo by{" "}
+                <a
+                  className="link"
+                  href="https://unsplash.com/@hannah15198?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash"
+                >
+                  Hannah Lim
+                </a>{" "}
+                on{" "}
+                <a
+                  className="link"
+                  href="https://unsplash.com/photos/litter-of-dogs-fall-in-line-beside-wall-U6nlG0Y5sfs?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash"
+                >
+                  Unsplash
+                </a>
+              </p>
+            </aside>
+          </div>
+
+          <div className="p-4 text-base-content flex flex-col gap-4 justify-around">
             <h1 className="text-3xl">
               Welcome to{" "}
               <span className="text-4xl text-nowrap">🐶DogSearch🐶</span>
             </h1>
-            <p className=" text-sm text-slate-600 mt-3 text-center mx-2">
+            <p className=" text-sm  text-center mx-2">
               Enter your name and email to begin searching for the perfect furry
               friend
             </p>
-            <form action={login} className="mt-2 p-4 rounded-lg bg-white">
+            <form
+              action={login}
+              className="mt-4 p-4 rounded-lg bg-neutral text-neutral-content"
+            >
+              {error.length > 0 && <p className="text-warning">{error}</p>}
+
               <Input
                 id="name"
                 label="Name"
@@ -68,28 +95,22 @@ export default function Home() {
                 placeholder="name@example.com"
                 type="email"
               />
-              <button type="submit" className="btn btn-primary mt-5">
+
+              <button
+                type="submit"
+                className={clsx(
+                  "btn mt-5",
+                  pending ? "btn-disabed" : "btn-primary"
+                )}
+                disabled={pending}
+              >
                 Login
               </button>
-              {error.length > 0 && <p>{error}</p>}
             </form>
           </div>
         </div>
       </div>
-      <div className="flex-grow footer footer-center bg-base-200 text-base-content">
-        <aside>
-          <p>
-            Photo by{" "}
-            <a href="https://unsplash.com/@hannah15198?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">
-              Hannah Lim
-            </a>{" "}
-            on{" "}
-            <a href="https://unsplash.com/photos/litter-of-dogs-fall-in-line-beside-wall-U6nlG0Y5sfs?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">
-              Unsplash
-            </a>
-          </p>
-        </aside>
-      </div>
+      <div className="flex-grow footer footer-center bg-base-200 text-base-content"></div>
     </div>
   );
 }
