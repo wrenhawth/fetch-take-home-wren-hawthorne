@@ -1,4 +1,4 @@
-const BASE_URL = "https://frontend-take-home-service.fetch.com";
+export const BASE_URL = "https://frontend-take-home-service.fetch.com";
 
 export const LOGIN_URL = `${BASE_URL}/auth/login`
 export const LOGOUT_URL = `${BASE_URL}/auth/logout`

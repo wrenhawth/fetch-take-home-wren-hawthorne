@@ -1,12 +1,28 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
-import { BREEDS_URL, DOGS_URL, LOGOUT_URL, SEARCH_URL } from "../lib/api";
-import { useRouter } from "next/navigation";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  BASE_URL,
+  BREEDS_URL,
+  DOGS_URL,
+  LOGOUT_URL,
+  SEARCH_URL,
+} from "../lib/api";
+import { redirect, useRouter } from "next/navigation";
 import { Dog } from "../lib/types";
-import { divide } from "lodash";
 import { DogCard } from "../ui/dogCard";
+import { Pagination } from "../ui/pagination";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 25;
+
+type SortInfo = {
+  term: "name" | "breed";
+  direction: "asc" | "desc";
+};
+
+const DEFAULT_SORT: SortInfo = {
+  term: "breed",
+  direction: "asc",
+};
 
 export default function Results() {
   const router = useRouter();
@@ -15,17 +31,13 @@ export default function Results() {
   //   Use modal to allow filtering by multiple breeds
   const [breeds, setBreeds] = useState<string[]>([]);
   const [dogIds, setDogIds] = useState<string[]>([]);
+  const dogMap = useRef<Map<string, Dog>>(new Map());
   const [dogs, setDogs] = useState<Dog[]>([]);
-  const [sortTerm, setSortTerm] = useState<"name" | "breed">("breed");
-  const [sortDirection, setSortDirection] = useState("asc");
-
-  const logout = useCallback(async () => {
-    await fetch(LOGOUT_URL, {
-      method: "POST",
-      credentials: "include",
-    });
-    router.push("/");
-  }, [router]);
+  const [paginationInfo, setPaginationInfo] = useState<PaginationInfo | null>(
+    null
+  );
+  const [searchString, setSearchString] = useState<string>("");
+  const [sortInfo, setSortInfo] = useState<SortInfo>(DEFAULT_SORT);
 
   // Fetch list of dog breeds for filtering
   useEffect(() => {
@@ -33,7 +45,9 @@ export default function Results() {
       const breedsResponse = await fetch(BREEDS_URL, {
         credentials: "include",
       });
-
+      if (breedsResponse.status === 401) {
+        redirect("/");
+      }
       if (breedsResponse.ok) {
         setBreeds(await breedsResponse.json());
       }
@@ -41,6 +55,7 @@ export default function Results() {
     fetchData();
   }, []);
 
+  // Fetch individual dogs when page or sortinfo changes
   useEffect(() => {
     async function fetchDogs(dogIds: string[]) {
       const dogSearchResponse = await fetch(DOGS_URL, {
@@ -49,45 +64,68 @@ export default function Results() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify(dogIds),
       });
+
       if (dogSearchResponse.ok) {
-        const json = await dogSearchResponse.json();
+        const json: Dog[] = await dogSearchResponse.json();
         setDogs(json);
+        json.forEach((d) => {
+          if (!dogMap.current.has(d.id)) {
+            dogMap.current.set(d.id, d);
+          }
+        });
       }
     }
 
-    async function fetchDogSearch() {
-      const params = new URLSearchParams({
-        size: PAGE_SIZE.toFixed(0),
-        from: (page * PAGE_SIZE).toFixed(0),
-        sort: "breed:asc",
+    async function fetchDogSearch(dogSearchString?: string) {
+      console.log(`dogSearchString: ${dogSearchString}`);
+      const resetPaginationParams = new URLSearchParams({
+        from: "0",
+        size: "10",
+        sort: `${sortInfo.term}:${sortInfo.direction}`,
       });
-      const dogSearchResponse = await fetch(`${SEARCH_URL}?${params}`, {
+      const dogSearchUrl = dogSearchString
+        ? `${BASE_URL}${dogSearchString}`
+        : `${SEARCH_URL}?${resetPaginationParams}`;
+
+      const dogSearchResponse = await fetch(dogSearchUrl, {
         credentials: "include",
       });
       if (dogSearchResponse.ok) {
         const json = await dogSearchResponse.json();
+        console.log(json);
+        setPaginationInfo({
+          total: json["total"],
+          prev: json["prev"],
+          next: json["next"],
+        });
         setDogIds(json["resultIds"]);
         fetchDogs(json["resultIds"]);
       }
     }
-    fetchDogSearch();
-  }, [page]);
+    if (searchString) {
+      fetchDogSearch(searchString);
+    } else {
+      fetchDogSearch();
+    }
+  }, [page, searchString, sortInfo]);
 
   return (
-    <div className="grid grid-cols-3 max-w-screen-xl max-h-screen">
-      <a className="cols-span-3" onClick={logout}>
-        Logout
-      </a>
-      <h1 className="text-4xl text-primary col-span-3">Dogs</h1>
-      <div className="col-span-3 grid grid-rows-2 grid-cols-5 gap-4">
+    <>
+      <Pagination
+        paginationInfo={paginationInfo}
+        setSearchString={setSearchString}
+      />
+      <div className="grid grid-rows-2 grid-cols-5 gap-4">
         {dogs.map((d) => (
           <DogCard key={d.id} dog={d} />
         ))}
       </div>
-
-      {/* {JSON.stringify(breeds)} */}
+      <Pagination
+        paginationInfo={paginationInfo}
+        setSearchString={setSearchString}
+      />
       <p>{JSON.stringify(dogIds)}</p>
       <p>{JSON.stringify(dogs)}</p>
-    </div>
+    </>
   );
 }

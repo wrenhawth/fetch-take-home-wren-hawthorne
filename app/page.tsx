@@ -80,7 +80,7 @@ export default function Home() {
             </p>
             <form
               action={login}
-              className="mt-4 p-4 rounded-lg bg-neutral text-neutral-content"
+              className="mt-4 p-4 rounded-lg bg-accent text-accent-content"
             >
               {error.length > 0 && <p className="text-warning">{error}</p>}
 
