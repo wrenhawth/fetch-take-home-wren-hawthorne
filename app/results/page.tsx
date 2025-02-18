@@ -10,7 +10,8 @@ import {
 import { redirect, useRouter } from "next/navigation";
 import { Dog } from "../lib/types";
 import { DogCard } from "../ui/dogCard";
-import { Pagination } from "../ui/pagination";
+import { Pagination, PaginationInfo } from "../ui/pagination";
+import _ from "lodash";
 
 const PAGE_SIZE = 25;
 
@@ -31,11 +32,14 @@ export default function Results() {
   //   Use modal to allow filtering by multiple breeds
   const [breeds, setBreeds] = useState<string[]>([]);
   const [dogIds, setDogIds] = useState<string[]>([]);
+  const [selectedDogs, setSelectedDogs] = useState<string[]>([]);
+
   const dogMap = useRef<Map<string, Dog>>(new Map());
   const [dogs, setDogs] = useState<Dog[]>([]);
   const [paginationInfo, setPaginationInfo] = useState<PaginationInfo | null>(
     null
   );
+
   const [searchString, setSearchString] = useState<string>("");
   const [sortInfo, setSortInfo] = useState<SortInfo>(DEFAULT_SORT);
 
@@ -77,7 +81,6 @@ export default function Results() {
     }
 
     async function fetchDogSearch(dogSearchString?: string) {
-      console.log(`dogSearchString: ${dogSearchString}`);
       const resetPaginationParams = new URLSearchParams({
         from: "0",
         size: "10",
@@ -92,7 +95,6 @@ export default function Results() {
       });
       if (dogSearchResponse.ok) {
         const json = await dogSearchResponse.json();
-        console.log(json);
         setPaginationInfo({
           total: json["total"],
           prev: json["prev"],
@@ -109,16 +111,59 @@ export default function Results() {
     }
   }, [page, searchString, sortInfo]);
 
+  const onToggle = useCallback((dogId: string) => {
+    setSelectedDogs((selectedDogs) => {
+      if (selectedDogs.includes(dogId)) {
+        return selectedDogs.filter((id) => id !== dogId);
+      } else {
+        return [...selectedDogs, dogId];
+      }
+    });
+  }, []);
   return (
     <>
-      <Pagination
-        paginationInfo={paginationInfo}
-        setSearchString={setSearchString}
-      />
-      <div className="grid grid-rows-2 grid-cols-5 gap-4">
-        {dogs.map((d) => (
-          <DogCard key={d.id} dog={d} />
-        ))}
+      <div className="grid grid-cols-2">
+        <Pagination
+          paginationInfo={paginationInfo}
+          setSearchString={setSearchString}
+        />
+        <button className="btn btn-primary btn-md w-1/2 m-auto" disabled={selectedDogs.length === 0}>
+            ✨ Find A Match ✨
+        </button>
+      </div>
+      <div className="grid grid-cols-12">
+        <div className="col-span-2">
+          <h2 className="font-semibold">Selected Dogs</h2>
+          <div>
+            {selectedDogs.map((selectedId) => {
+              return (
+                <div
+                  key={selectedId}
+                  className="badge badge-lg badge-secondary block my-2 cursor-pointer"
+                >
+                  {dogMap.current.get(selectedId)?.name}{" "}
+                  <span
+                    className="font-semibold"
+                    onClick={() => onToggle(selectedId)}
+                  >
+                    X
+                  </span>
+                  {/* <button className="btn btn-xs">-</button> */}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div className="col-span-10 grid grid-rows-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {dogs.map((d) => (
+            <DogCard
+              key={d.id}
+              dog={d}
+              selected={selectedDogs.includes(d.id)}
+              onToggle={onToggle}
+            />
+          ))}
+        </div>
       </div>
       <Pagination
         paginationInfo={paginationInfo}

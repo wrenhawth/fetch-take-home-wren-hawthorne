@@ -5,7 +5,7 @@ export type PaginationInfo = {
 };
 
 type PaginationProps = {
-  paginationInfo: PaginationInfo;
+  paginationInfo: PaginationInfo | null;
   setSearchString: React.Dispatch<React.SetStateAction<string>>;
 };
 
