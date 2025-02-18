@@ -30,7 +30,7 @@ export const DogCard = ({ dog, selected, onToggle }: DogCardProps) => {
       >
         {selected ? "- Remove" : "+ Add"}
       </button>
-      <div className="grid grid-cols-2 gap-0 items-center card-body [&&]:p-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-center card-body [&&]:p-2">
         <h2 className="card-title">{dog.name}</h2>
         <p className="font-bold">{dog.breed}</p>
         <p className="font-semibold">Age: {dog.age}</p>

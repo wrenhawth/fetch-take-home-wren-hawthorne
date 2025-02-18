@@ -82,7 +82,7 @@ export default function Home() {
               action={login}
               className="mt-4 p-4 rounded-lg bg-accent text-accent-content"
             >
-              {error.length > 0 && <p className="text-warning">{error}</p>}
+              {error.length > 0 && <p className="text-error font-bold">{error}</p>}
 
               <Input
                 id="name"

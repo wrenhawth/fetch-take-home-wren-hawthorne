@@ -1,5 +1,5 @@
 "use client";
-import { useCallback } from "react";
+import { Suspense, useCallback } from "react";
 import { LOGOUT_URL } from "../lib/api";
 import { useRouter } from "next/navigation";
 
@@ -19,11 +19,11 @@ export default function ResultsLayout({
 
   return (
     <div className="grid grid-cols-2 p-4 m-4 gap-4 max-w-screen-xl max-h-screen self-center items-center justify-around">
-      <h1 className="text-4xl p-2 text-primary">🐶DogSearch🐶</h1>
+      <h1 className="text-4xl p-2 text-primary text-nowrap">🐶DogSearch🐶</h1>
       <a className="p-2 link text-right align-middle" onClick={logout}>
         Logout
       </a>
-      <div className="col-span-2">{children}</div>
+      <div className="col-span-2"><Suspense>{children}</Suspense></div>
     </div>
   );
 }
