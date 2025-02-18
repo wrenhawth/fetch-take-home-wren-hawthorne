@@ -25,7 +25,7 @@ export const DogCard = ({ dog, selected, onToggle }: DogCardProps) => {
         />
       </figure>
       <button
-        className={clsx("btn btn-sm w-1/2 m-auto", selected ? "btn-outline" :"btn-primary")}
+        className={clsx("btn btn-sm w-1/2 m-auto", selected ? "btn-secondary" :"btn-primary")}
         onClick={toggleDog}
       >
         {selected ? "- Remove" : "+ Add"}

@@ -14,7 +14,7 @@ export const Pagination = ({
   setSearchString,
 }: PaginationProps) => {
   return (
-    <div className="w-1/4 join grid grid-cols-2 p-4 m-auto">
+    <div className="w-full join grid grid-cols-2 p-4">
       <button
         className="join-item btn btn-outline"
         onClick={() => {

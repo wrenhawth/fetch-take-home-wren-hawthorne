@@ -14,7 +14,7 @@ export const Input = ({ id, label, placeholder, type = "text"}: InputProps) => {
       <input
         id={id}
         name={id}
-        className="input input-bordered"
+        className="input input-bordered text-base-content"
         placeholder={placeholder}
         type={type}
       />

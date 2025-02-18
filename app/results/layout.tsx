@@ -19,7 +19,7 @@ export default function ResultsLayout({
 
   return (
     <div className="grid grid-cols-2 p-4 m-4 gap-4 max-w-screen-xl max-h-screen self-center items-center justify-around">
-      <h1 className="text-4xl p-2 text-primary">DogSearch</h1>
+      <h1 className="text-4xl p-2 text-primary">🐶DogSearch🐶</h1>
       <a className="p-2 link text-right align-middle" onClick={logout}>
         Logout
       </a>
